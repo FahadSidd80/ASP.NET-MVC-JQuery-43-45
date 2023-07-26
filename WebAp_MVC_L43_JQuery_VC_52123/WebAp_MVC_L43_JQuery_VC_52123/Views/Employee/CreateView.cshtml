@@ -1,0 +1,146 @@
+﻿
+@{
+    ViewBag.Title = "CreateView";
+}
+
+<h2>Employee Form</h2>
+
+<table>
+    <tr>
+        <td>Name:</td>
+        <td><input type="text" id="txtname" /></td>
+    </tr>
+    <tr>
+        <td>Address:</td>
+        <td><input type="text" id="txtaddress" /></td>
+    </tr>
+    <tr>
+        <td>Age:</td>
+        <td><input type="text" id="txtage" /></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="button" id="btnsave" value="Save" onclick="Insert()" /></td>
+    </tr>
+</table>
+
+<table id="tbl" style="background-color:aqua;color:maroon;width:500px">
+    <tr style="background-color:purple;color:white">
+        <th>Emp ID</th>
+        <th>Emp Name</th>
+        <th>Emp Address</th>
+        <th>Emp Age</th>
+        <th>Action</th>
+        <th>Action</th>
+    </tr>
+</table>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+   
+    $(document).ready(function () {
+        Show();
+    });
+
+    function Show() {
+        $.ajax({
+            url: 'Employee/DisplayEmployee',
+            type: 'post',
+            data: {},
+            success: function (Data) {
+                Data = JSON.parse(Data);
+                $("#tbl").find("tr:gt(0)").remove();
+                for (var i = 0; i < Data.length; i++) {
+                    $("#tbl").append('<tr><td>' + Data[i].empid + '</td><td>' + Data[i].name + '</td><td>' + Data[i].address + '</td><td>' + Data[i].age + '</td>   <td><input type="button" id="btndelete" value="Delete" onclick="Delete(' + Data[i].empid + ')" /></td> <td><input type="button" id="btnedit" value="Edit" onclick="Edit(' + Data[i].empid + ')" /></td>  </tr>');
+                }
+            },
+            error: function () {
+                alert('Data not found !!');
+            }
+        });
+    }
+
+    
+    function Insert() {
+        if ($("#btnsave").val() == "Save") {
+            $.ajax({
+                url: 'Employee/SaveEmployee',
+                type: 'post',
+                data: { name: $("#txtname").val(), address: $("#txtaddress").val(), age: $("#txtage").val() },
+                success: function () {
+                    //Display();
+                    Show();
+                    clear();
+                    //alert('data saved');
+                },
+                error: function () {
+                    alert('Data not saved !!');
+                }
+            });
+        }
+        else {
+
+            $.ajax({
+                url: 'Employee/UpdateEmployee',
+                type: 'post',
+                data: { empid: IDD, name: $("#txtname").val(), address: $("#txtaddress").val(), age: $("#txtage").val() },
+                success: function () {
+                    //Display();
+                    Show();
+                    clear();
+                    //alert('data saved');
+                },
+                error: function () {
+                    alert('Data not updated !!');
+                }
+            });
+
+        }
+    }
+    
+    
+   
+    function Delete(empid) {
+        $.ajax({
+            url: 'Employee/DeleteEmployee',
+            type: 'post',
+            data: { empid: empid },
+            success: function () {
+                Show();
+            },
+            error: function () {
+                alert('Data not deleted !!');
+            }
+        });
+    }
+    var IDD = 0; // global variable
+    function Edit(empid) {
+        $.ajax({
+            url: 'Employee/EditEmployee',
+            type: 'post',
+            data: { empid: empid },
+            success: function (Data) {
+                Data = JSON.parse(Data);
+                $("#txtname").val(Data[0].name);
+                $("#txtaddress").val(Data[0].address);
+                $("#txtage").val(Data[0].age);
+                $("#btnsave").val("Update");
+                IDD = empid;// update me supply karenge ye ID ko
+
+            },
+            error: function () {
+                alert('Data not edited !!');
+            }
+        });
+    }
+
+    function clear() {
+        $("#txtname").val("");
+        $("#txtaddress").val("");
+        $("#txtage").val("");
+        $("#btnsave").val("Save");
+        IDD = 0;
+    }
+   
+</script>
+

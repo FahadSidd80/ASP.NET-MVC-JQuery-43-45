@@ -1,0 +1,272 @@
+﻿
+@{
+    ViewBag.Title = "CreateView";
+}
+
+<h2>Employee Form</h2>
+
+<!--<table>
+    <tr>
+        <td>Name:</td>
+        <td><input type="text" id="txtname" /></td>
+    </tr>
+    <tr>
+        <td>Address:</td>
+        <td><input type="text" id="txtaddress" /></td>
+    </tr>
+    <tr>
+        <td>Age:</td>
+        <td><input type="text" id="txtage" /></td>
+    </tr>
+    <tr>
+        <td>Gender:</td>
+        <td>
+            <input type="radio" value="1" name="G" />Male
+            <input type="radio" value="2" name="G" />Female
+            <input type="radio" value="3" name="G" />Other
+        </td>
+    </tr>
+    <tr>
+        <td>Country:</td>
+        <td>
+            <select id="ddlcountry" onchange="ShowState()">
+                <option value="0">--Select--</option>-->
+                @* static binding*@
+            <!--</select>
+        </td>
+    </tr>
+    <tr>
+        <td>State:</td>
+        <td id="ddlstate">
+            <select>
+                <option value="0">--Select--</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="button" id="btnsave" value="Save" onclick="Insert()" /></td>
+    </tr>
+</table>
+
+<table id="tbl" style="background-color:aqua;color:maroon;width:500px">
+    <tr style="background-color:purple;color:white">
+        <th>Emp ID</th>
+        <th>Emp Name</th>
+        <th>Emp Address</th>
+        <th>Emp Age</th>
+        <th>Emp Gender</th>
+        <th>Emp Country</th>
+        <th>Emp State</th>
+        <th>Action</th>
+        <th>Action</th>
+    </tr>
+</table>-->
+
+<table>
+    <tr>
+        <td>Name :</td>
+        <td><input type="text" id="txtname" /></td>
+    </tr>
+
+    <tr>
+        <td>Address :</td>
+        <td><input type="text" id="txtaddress" /></td>
+    </tr>
+
+    <tr>
+        <td>Age :</td>
+        <td><input type="text" id="txtage" /></td>
+    </tr>
+
+    <tr>
+        <td>Gender :</td>
+        <td>
+            <input type="radio" name="G" value="1" /> male
+            <input type="radio" name="G" value="2" /> female
+            <input type="radio" name="G" value="3" /> other
+        </td>
+    </tr>
+
+    <tr>
+        <td>Country :</td>
+        <td>
+            <select id="ddlcountry" onchange="ShowState()">
+                <option value="0">--Select--</option>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td>State :</td>
+        <td>
+            <select id="ddlstate">
+                <option value="0">--Select--</option>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td><input type="button" id="btnsave" value="Save" onclick="Insert()" /></td>
+    </tr>
+</table>
+<table id="tbl" style="background-color:aqua;color:maroon;width:800px">
+    <tr style="background-color:purple;color:white">
+        <th>Emp ID</th>
+        <th>Emp Name</th>
+        <th>Emp Address</th>
+        <th>Emp Age</th>
+        <th>Emp Gender</th>
+        <th>Emp Country</th>
+        <th>Emp State</th>
+        <th>Action</th>
+        <th>Action</th>
+    </tr>
+</table>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        Show();
+        ShowCountry();
+    });
+
+    function Show() {
+        $.ajax({
+            url: 'Employee/GetEmployee',
+            type: 'post',
+            data: {},
+            success: function (Data) {
+                Data = JSON.parse(Data);
+                $("#tbl").find("tr:gt(0)").remove();
+                for (var i = 0; i < Data.length; i++) {
+                    $("#tbl").append('<tr><td>' + Data[i].empid + '</td><td>' + Data[i].name + '</td><td>' + Data[i].address + '</td><td>' + Data[i].age + '</td> <td>' + (Data[i].gender == 1 ? "male" : Data[i].gender == 2 ? "female" : "other") + '</td> <td>' + Data[i].cname + '</td><td>' + Data[i].sname + '</td>   <td><input type="button" id="btndelete" value="Delete" onclick="Delete(' + Data[i].empid + ')" /></td> <td><input type="button" id="btnedit" value="Edit" onclick="Edit(' + Data[i].empid + ')" /></td>  </tr>');
+                }
+            },
+            error: function () {
+                alert('Data not found !!');
+            }
+        });
+    }
+
+    function ShowCountry() {
+        $.ajax({
+            url: 'Employee/GetCountry',
+            type: 'post',
+            data: {},
+            success: function (Data) {
+                Data = JSON.parse(Data);
+                for (var i = 0; i < Data.length; i++) {
+                    $("#ddlcountry").append($('<option></option>').html(Data[i].cname).val(Data[i].cid));
+                }
+            },
+            error: function () {
+                alert('Country not found !!');
+            }
+        });
+    }
+
+    function ShowState() {
+        $.ajax({
+            url: 'Employee/GetState',
+            type: 'post',
+            data: { cid: $("#ddlcountry").val() },
+            async: false,
+            success: function (Data) {
+                Data = JSON.parse(Data);
+                $("#ddlstate").empty();
+                $("#ddlstate").append($('<option></option>').html("--Select--").val(0));
+
+                for (var i = 0; i < Data.length; i++) {
+                    $("#ddlstate").append($('<option></option>').html(Data[i].sname).val(Data[i].sid));
+                }
+            },
+            error: function () {
+                alert('state not found !!');
+            }
+        });
+    }
+    function Insert() {
+        if ($("#btnsave").val() == "Save") {
+            $.ajax({
+                url: 'Employee/SaveEmployee',
+                type: 'post',
+                data: { name: $("#txtname").val(), address: $("#txtaddress").val(), age: $("#txtage").val(), country: $("#ddlcountry").val(), state: $("#ddlstate").val(), gender: $('input:radio[name=G]:checked').val() },
+                success: function () {
+                    Show();
+                    Clear();
+                },
+                error: function () {
+                    alert('Data not saved !!');
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: 'Employee/UpdateEmployee',
+                type: 'post',
+                data: { empid: IDD, name: $("#txtname").val(), address: $("#txtaddress").val(), age: $("#txtage").val(), country: $("#ddlcountry").val(), state: $("#ddlstate").val(), gender: $('input:radio[name=G]:checked').val() },
+                success: function () {
+                    Show();
+                    Clear();
+                },
+                error: function () {
+                    alert('Data not updated !!');
+                }
+            });
+        }
+    }
+
+    function Delete(empid) {
+        $.ajax({
+            url: 'Employee/DeleteEmployee',
+            type: 'post',
+            data: { empid: empid },
+            success: function () {
+                Show();
+            },
+            error: function () {
+                alert('Data not Deleted !!');
+            }
+        });
+    }
+
+
+    var IDD = 0;
+    function Edit(empid) {
+        $.ajax({
+            url: 'Employee/EditEmployee',
+            type: 'post',
+            data: { empid: empid },
+            async: false,
+            success: function (Data) {
+                Data = JSON.parse(Data);
+                $("#txtname").val(Data[0].name);
+                $("#txtaddress").val(Data[0].address);
+                $("#txtage").val(Data[0].age);
+                $('input:radio[name=G][value=' + Data[0].gender + ']').prop("checked", true);
+                $("#ddlcountry").val(Data[0].country);
+                ShowState();
+                $("#ddlstate").val(Data[0].state);
+                $("#btnsave").val("Update");
+                IDD = empid;
+            },
+            error: function () {
+                alert('Data not Edited !!');
+            }
+        });
+    }
+
+
+    function Clear() {
+        $("#txtname").val("");
+        $("#txtaddress").val("");
+        $("#txtage").val("");
+        $("#ddlcountry").val(0);
+        $("#ddlstate").val(0);
+        $('input:radio[name=G]').prop('checked', false);
+        $("#btnsave").val("Save");
+        IDD = 0;
+    }
+</script>
